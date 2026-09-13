@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curso Avanzado: Forecasting para Supply Chain con Python - Naren Castellón</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              900: '#14532d',
+            },
+            tech: {
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;600&display=swap');
+    code, pre { font-family: 'Fira Code', monospace; }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-slate-900 custom-scrollbar">
+
+  <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-500 to-tech-500 flex items-center justify-center font-bold text-slate-900 text-xl shadow-lg shadow-brand-500/20">
+          SC
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight text-white block leading-none">Supply Chain Forecasting</span>
+          <span class="text-xs text-brand-400 font-medium">Nivel Intermedio • Python & ML</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex space-x-1 bg-slate-800/60 p-1.5 rounded-xl border border-slate-700/50">
+        <button onclick="switchTab('portada')" id="nav-portada" class="tab-btn active-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Portada</button>
+        <button onclick="switchTab('fundamentos')" id="nav-fundamentos" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">Introducción & Objetivos</button>
+        <button onclick="switchTab('audiencia')" id="nav-audiencia" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">Audiencia e Importancia</button>
+        <button onclick="switchTab('temario')" id="nav-temario" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">Temario (Clásicos & ML)</button>
+        <button onclick="switchTab('cronograma')" id="nav-cronograma" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">Cronograma</button>
+        <button onclick="switchTab('certificado')" id="nav-certificado" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">Certificado</button>
+        <button onclick="switchTab('precios')" id="nav-precios" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all">Precios LatAm</button>
+      </nav>
+
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-400 hover:text-white">
+          <i data-lucide="menu"></i>
+        </button>
+        <a id="btn-inscribirme-header" href="javascript:void(0)" onclick="redirectToPayment(event)" class="hidden sm:inline-flex items-center space-x-2 bg-gradient-to-r from-brand-500 to-emerald-600 text-slate-950 font-semibold text-xs px-4 py-2 rounded-xl hover:brightness-110 transition shadow-lg shadow-brand-500/20">
+          <span>Inscribirme</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-slate-800 px-4 pt-2 pb-4 space-y-1">
+      <button onclick="switchTab('portada')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Portada</button>
+      <button onclick="switchTab('fundamentos')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Introducción & Objetivos</button>
+      <button onclick="switchTab('audiencia')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Audiencia e Importancia</button>
+      <button onclick="switchTab('temario')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Temario Detallado</button>
+      <button onclick="switchTab('cronograma')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Cronograma</button>
+      <button onclick="switchTab('certificado')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Certificado</button>
+      <button onclick="switchTab('precios')" class="block w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800">Precios e Inscripción</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- SECTION 1: PORTADA & INSTRUCTOR -->
+    <section id="tab-portada" class="tab-content transition-opacity duration-300">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Hero Text -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-brand-400 text-xs font-medium">
+            <span class="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse"></span>
+            <span>Programa Ejecutivo 100% En Vivo para Latinoamérica</span>
+          </div>
+          
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+            Forecasting para <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-emerald-300 to-tech-400">Supply Chain</span> con Python
+          </h1>
+          
+          <p class="text-lg text-slate-300 leading-relaxed">
+            Domina desde los modelos estadísticos clásicos (<code class="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">SARIMA</code>, <code class="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">SARIMAX</code>, <code class="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">Holt-Winters</code>, <code class="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">Prophet</code>) hasta modelos de Machine Learning (<code class="text-indigo-400 bg-slate-800 px-1.5 py-0.5 rounded">Random Forest</code>, <code class="text-indigo-400 bg-slate-800 px-1.5 py-0.5 rounded">XGBoost</code>, <code class="text-indigo-400 bg-slate-800 px-1.5 py-0.5 rounded">CatBoost</code>) aplicados a la planificación de demanda e inventarios.
+          </p>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
+            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+              <span class="block text-2xl font-bold text-brand-400">24 Horas</span>
+              <span class="text-xs text-slate-400">12 Sesiones en Vivo</span>
+            </div>
+            <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+              <span class="block text-2xl font-bold text-tech-400">4 Semanas</span>
+              <span class="text-xs text-slate-400">3 Frecuencias / Sem</span>
+            </div>
+            <div class="bg-slate-800/80 col-span-2 sm:col-span-1 p-4 rounded-xl border border-slate-700/60">
+              <span class="block text-2xl font-bold text-amber-400">Práctico</span>
+              <span class="text-xs text-slate-400">Datasets Reales LatAm</span>
+            </div>
+          </div>
+
+          <!-- Contact Bar Direct In Hero -->
+          <div class="flex flex-wrap items-center gap-3 bg-slate-800/60 p-3.5 rounded-xl border border-slate-700/70 text-xs">
+            <span class="text-slate-400 font-semibold">Contacto Directo:</span>
+            <a href="https://wa.me/50762801526" target="_blank" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition font-medium">
+              <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+              <span>WhatsApp: +507 62801526</span>
+            </a>
+            <a href="mailto:jansnica@gmail.com" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20 transition font-medium">
+              <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+              <span>jansnica@gmail.com</span>
+            </a>
+          </div>
+
+          <div class="flex flex-wrap gap-4 pt-2">
+            <button onclick="switchTab('temario')" class="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-sm transition flex items-center space-x-2 shadow-lg shadow-brand-500/25">
+              <i data-lucide="book-open" class="w-4 h-4"></i>
+              <span>Ver Temario Detallado</span>
+            </button>
+            <button onclick="redirectToPayment(event)" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-slate-950 font-bold text-sm transition flex items-center space-x-2 shadow-lg shadow-emerald-500/20">
+              <i data-lucide="credit-card" class="w-4 h-4"></i>
+              <span>Inscribirme Ahora</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Instructor Card -->
+        <div class="lg:col-span-5">
+          <div class="relative bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700/80 rounded-2xl p-6 shadow-2xl overflow-hidden group">
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-brand-500/10 rounded-full blur-2xl group-hover:bg-brand-500/20 transition"></div>
+            
+            <div class="flex items-center space-x-4 mb-6">
+              <div class="relative">
+                <div class="w-20 h-20 rounded-2xl bg-slate-700 border-2 border-brand-500/80 flex items-center justify-center text-slate-300 font-extrabold text-2xl overflow-hidden shadow-md">
+                  <span class="bg-gradient-to-br from-brand-400 to-tech-600 text-white w-full h-full flex items-center justify-center font-bold text-2xl">NC</span>
+                </div>
+                <div class="absolute -bottom-1 -right-1 bg-brand-500 text-slate-950 p-1 rounded-full text-xs shadow" title="Verificado">
+                  <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div>
+                <span class="text-xs uppercase tracking-wider text-brand-400 font-bold">INSTRUCTOR DEL CURSO</span>
+                <h3 class="text-2xl font-extrabold text-white tracking-tight">Naren Castellón</h3>
+                <p class="text-xs text-slate-400">Especialista & Consultor Internacional en Forecasting</p>
+              </div>
+            </div>
+
+            <p class="text-slate-300 text-sm leading-relaxed mb-6">
+              Experto en Pronósticos de Demanda, Series Temporales y Cadena de Suministro. Ex-colaborador en <strong class="text-white">Nixtla</strong> (ecosistema de open-source forecasting líder a nivel global). Ha asesorado y capacitado a empresas de consumo masivo, logística y manufactura en América Latina.
+            </p>
+
+            <div class="space-y-2.5 text-xs text-slate-300 border-t border-slate-700/60 pt-4">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="award" class="w-4 h-4 text-brand-400"></i>
+                <span>Ex-Contribuidor / Colaborador en <strong>Nixtla</strong></span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <i data-lucide="briefcase" class="w-4 h-4 text-brand-400"></i>
+                <span>Consultor & Instructor de Supply Chain Analytics en LatAm</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <i data-lucide="message-circle" class="w-4 h-4 text-emerald-400"></i>
+                <span>WhatsApp: <strong class="text-white">+507 62801526</strong></span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <i data-lucide="mail" class="w-4 h-4 text-indigo-400"></i>
+                <span>Email: <strong class="text-white">jansnica@gmail.com</strong></span>
+              </div>
+            </div>
+
+            <!-- Tech Badge Stack -->
+            <div class="mt-6 pt-4 border-t border-slate-700/60 flex flex-wrap gap-2">
+              <span class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400">Pandas & Polars</span>
+              <span class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-xs font-mono text-indigo-400">SARIMA / Prophet</span>
+              <span class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-xs font-mono text-amber-400">XGBoost & CatBoost</span>
+              <span class="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-xs font-mono text-cyan-400">Segmentación ABC/XYZ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: INTRODUCCION & OBJETIVOS -->
+    <section id="tab-fundamentos" class="tab-content hidden transition-opacity duration-300 space-y-8">
+      <div class="bg-slate-800/50 border border-slate-700/60 rounded-2xl p-6 sm:p-8">
+        <div class="max-w-3xl">
+          <span class="text-xs font-bold text-brand-400 uppercase tracking-widest">Contexto & Visión</span>
+          <h2 class="text-3xl font-bold text-white mt-1 mb-4">Introducción al Curso</h2>
+          <p class="text-slate-300 leading-relaxed mb-4">
+            En el entorno volátil y competitivo de América Latina, la precisión en los pronósticos de demanda deja de ser una tarea puramente estadística para convertirse en la palanca financiera principal de la Cadena de Suministro. Un error sistemático genera excesos de inventario (capital de trabajo inmovilizado) o roturas de stock (pérdida de ventas y penalizaciones por nivel de servicio OTIF).
+          </p>
+          <p class="text-slate-300 leading-relaxed">
+            Este curso aborda la brecha existente entre los modelos tradicionales de hojas de cálculo y la analítica moderna en Python. El participante aprenderá a automatizar, evaluar y escalar pipelines de pronóstico utilizando frameworks de última generación capaces de procesar desde decenas hasta miles de SKUs simultáneamente.
+          </p>
+        </div>
+      </div>
+
+      <!-- Objectives Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Objetivos Generales -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/70 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center mb-4">
+            <i data-lucide="target" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Objetivo General</h3>
+          <p class="text-slate-300 text-sm leading-relaxed">
+            Capacitar al profesional para diseñar, implementar y validar pipelines end-to-end de pronóstico de demanda en Python, integrando técnicas estadísticas clásicas con algoritmos de Machine Learning y reconciliación jerárquica para la toma de decisiones estratégicas y operativas en Supply Chain.
+          </p>
+        </div>
+
+        <!-- Objetivos Específicos -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/70 rounded-2xl p-6">
+          <div class="w-12 h-12 rounded-xl bg-tech-500/10 border border-tech-500/20 text-tech-400 flex items-center justify-center mb-4">
+            <i data-lucide="list-checks" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">Objetivos Específicos</h3>
+          <ul class="space-y-3 text-slate-300 text-sm">
+            <li class="flex items-start space-x-2">
+              <i data-lucide="check" class="w-4 h-4 text-brand-400 mt-1 shrink-0"></i>
+              <span>Dominar Data Wrangling con Pandas, visualización analítica con Matplotlib/Seaborn y la segmentación estratégica ABC/XYZ.</span>
+            </li>
+            <li class="flex items-start space-x-2">
+              <i data-lucide="check" class="w-4 h-4 text-brand-400 mt-1 shrink-0"></i>
+              <span>Implementar modelos estadísticos clásicos: SARIMA, SARIMAX, Prophet, Holt y Holt-Winters.</span>
+            </li>
+            <li class="flex items-start space-x-2">
+              <i data-lucide="check" class="w-4 h-4 text-brand-400 mt-1 shrink-0"></i>
+              <span>Desarrollar modelos de Machine Learning avanzados (Regresión Lineal, Árboles de Decisión, Random Forest, XGBoost y CatBoost).</span>
+            </li>
+            <li class="flex items-start space-x-2">
+              <i data-lucide="check" class="w-4 h-4 text-brand-400 mt-1 shrink-0"></i>
+              <span>Aplicar métricas de negocio (MAPE, WAPE, RMSE, BIAS) y conectar el pronóstico con el cálculo de Safety Stock y reabastecimiento.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: AUDIENCIA E IMPORTANCIA -->
+    <section id="tab-audiencia" class="tab-content hidden transition-opacity duration-300 space-y-8">
+      <!-- Target Audience Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 hover:border-slate-600 transition">
+          <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center mb-4">
+            <i data-lucide="users" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Demand & Supply Planners</h3>
+          <p class="text-slate-400 text-sm">
+            Profesionales que buscan migrar de Excel hacia pipelines automatizados y reproducibles en Python con mayor grado de precisión.
+          </p>
+        </div>
+
+        <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 hover:border-slate-600 transition">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
+            <i data-lucide="line-chart" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Data Scientists / Analistas</h3>
+          <p class="text-slate-400 text-sm">
+            Analistas cuantitativos que desean especializarse en las particularidades de Supply Chain (jerarquías, intermitencia, costo del error).
+          </p>
+        </div>
+
+        <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 hover:border-slate-600 transition">
+          <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4">
+            <i data-lucide="boxes" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">Líderes de S&OP y Logística</h3>
+          <p class="text-slate-400 text-sm">
+            Gerentes y jefes de área que requieren entender técnicamente las capacidades del ML para liderar proyectos analíticos exitosos.
+          </p>
+        </div>
+      </div>
+
+      <!-- Importancia / Valor agregado -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 sm:p-8">
+        <h3 class="text-2xl font-bold text-white mb-6 flex items-center space-x-3">
+          <i data-lucide="trending-up" class="w-6 h-6 text-brand-400"></i>
+          <span>¿Por qué este curso transforma tu carrera y tu empresa?</span>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex items-start space-x-4">
+            <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 text-amber-400 shrink-0">
+              <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-white mb-1">Reducción Directa de Costos de Inventario</h4>
+              <p class="text-slate-400 text-sm">
+                Un incremento del 1% en la precisión del pronóstico puede reducir hasta un 5% en costos de almacenamiento y obsolescencia.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 text-brand-400 shrink-0">
+              <i data-lucide="zap" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-white mb-1">Tecnología SOTA (State of the Art)</h4>
+              <p class="text-slate-400 text-sm">
+                Aprenderás librerías modernas (`statsforecast`, `mlforecast`) desarrolladas por la comunidad global de Series Temporales (incluyendo la experiencia Nixtla).
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 text-tech-400 shrink-0">
+              <i data-lucide="layers" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-white mb-1">Manejo Eficiente de SKUs Intermitentes y Jerárquicos</h4>
+              <p class="text-slate-400 text-sm">
+                Tratamiento especializado para repuestos o productos de baja rotación, donde los métodos tradicionales fallan estrepitosamente.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start space-x-4">
+            <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 text-rose-400 shrink-0">
+              <i data-lucide="code-2" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-white mb-1">Código Reutilizable en Tu Empresa</h4>
+              <p class="text-slate-400 text-sm">
+                Saldrás con Plantillas de Jupyter Notebooks listas para conectar a tus fuentes de datos (PostgreSQL, Snowflake, CSV, Excel).
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: TEMARIO DETALLADO -->
+    <section id="tab-temario" class="tab-content hidden transition-opacity duration-300 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+        <div>
+          <span class="text-xs font-bold text-brand-400 uppercase tracking-widest">Nivel Intermedio • 24 Horas Lectivas (1 Mes)</span>
+          <h2 class="text-3xl font-bold text-white">Temario Oficial del Curso</h2>
+        </div>
+        <div class="flex items-center space-x-3 text-xs font-mono">
+          <span class="px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">Clásicos & Prophet</span>
+          <span class="text-slate-500">+</span>
+          <span class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">ML: XGBoost & CatBoost</span>
+        </div>
+      </div>
+
+      <!-- Modules Accordion Grid -->
+      <div class="grid grid-cols-1 gap-4">
+        
+        <!-- MÓDULO 1 -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden">
+          <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-slate-800/90 transition" onclick="toggleModule('mod1')">
+            <div class="flex items-center space-x-4">
+              <span class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 font-extrabold flex items-center justify-center shrink-0">01</span>
+              <div>
+                <span class="text-xs text-brand-400 font-mono">Semana 1 • 6 Horas</span>
+                <h3 class="text-lg font-bold text-white">Fundamentos del Forecasting & Análisis de Datos</h3>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">Semana 1</span>
+              <i data-lucide="chevron-down" id="mod1-icon" class="w-5 h-5 text-slate-400 transition-transform"></i>
+            </div>
+          </div>
+          <div id="mod1-content" class="px-5 pb-5 border-t border-slate-700/60 pt-4 hidden space-y-3 text-sm text-slate-300">
+            <ul class="list-disc list-inside space-y-2 text-slate-300">
+              <li>Rol estratégico del forecasting en la planificación de la demanda y alineación S&OP.</li>
+              <li>Tipos de modelos de pronóstico: Causales, Estadísticos, Machine Learning e Híbridos.</li>
+              <li><strong>Data Wrangling con Pandas:</strong> Limpieza, agregación temporal, remoción de outliers e imputación de valores faltantes.</li>
+              <li><strong>Visualización de Demanda:</strong> Gráficos explicativos y exploratorios con <strong>Matplotlib</strong> y <strong>Seaborn</strong>.</li>
+              <li><strong>Segmentación ABC / XYZ:</strong> Clasificación de productos por volumen/valor de ventas (ABC) y variabilidad/predecibilidad de la demanda (XYZ).</li>
+              <li>Métricas clave de evaluación de error: <strong>MAPE, WAPE, RMSE y BIAS</strong> (sesgo del pronóstico).</li>
+              <li>Introducción y manipulación de datos multiserie (SKU × Almacén × Cliente).</li>
+            </ul>
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-xs text-emerald-400">
+              # Stack: Python, Pandas, Matplotlib, Seaborn, Numpy<br>
+              # Segmentación: ABC (Pareto) + XYZ (Coeficiente de Variación CV)
+            </div>
+          </div>
+        </div>
+
+        <!-- MÓDULO 2 -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden">
+          <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-slate-800/90 transition" onclick="toggleModule('mod2')">
+            <div class="flex items-center space-x-4">
+              <span class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 font-extrabold flex items-center justify-center shrink-0">02</span>
+              <div>
+                <span class="text-xs text-brand-400 font-mono">Semana 2 • 6 Horas</span>
+                <h3 class="text-lg font-bold text-white">Modelos Clásicos y Series Temporales</h3>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">Semana 2</span>
+              <i data-lucide="chevron-down" id="mod2-icon" class="w-5 h-5 text-slate-400 transition-transform"></i>
+            </div>
+          </div>
+          <div id="mod2-content" class="px-5 pb-5 border-t border-slate-700/60 pt-4 hidden space-y-3 text-sm text-slate-300">
+            <ul class="list-disc list-inside space-y-2 text-slate-300">
+              <li><strong>Modelos de Suavizamiento Exponencial:</strong> Modelo <strong>Holt</strong> (tendencia) y Modelo <strong>Holt-Winters</strong> (tendencia y estacionalidad).</li>
+              <li>Modelos Estadísticos Univariados y Estacionarios: <strong>SARIMA</strong>.</li>
+              <li>Incorporación de variables explicativas exógenas: Modelo <strong>SARIMAX</strong>.</li>
+              <li>Modelado de tendencia y estacionalidad con componentes aditivos/multiplicativos usando <strong>Prophet</strong>.</li>
+              <li>Evaluación formal de estacionalidad, tendencia y patrones cíclicos en la demanda.</li>
+              <li>Criterios de selección automática del modelo óptimo por SKU/Categoría.</li>
+            </ul>
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-xs text-emerald-400">
+              from statsmodels.tsa.statespace.sarimax import SARIMAX<br>
+              from statsforecast.models import Holt, HoltWinters, AutoARIMA<br>
+              from prophet import Prophet
+            </div>
+          </div>
+        </div>
+
+        <!-- MÓDULO 3 -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden">
+          <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-slate-800/90 transition" onclick="toggleModule('mod3')">
+            <div class="flex items-center space-x-4">
+              <span class="w-10 h-10 rounded-xl bg-tech-500/20 text-tech-400 font-extrabold flex items-center justify-center shrink-0">03</span>
+              <div>
+                <span class="text-xs text-tech-400 font-mono">Semana 3 • 6 Horas</span>
+                <h3 class="text-lg font-bold text-white">Forecasting Avanzado con Machine Learning</h3>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">Semana 3</span>
+              <i data-lucide="chevron-down" id="mod3-icon" class="w-5 h-5 text-slate-400 transition-transform"></i>
+            </div>
+          </div>
+          <div id="mod3-content" class="px-5 pb-5 border-t border-slate-700/60 pt-4 hidden space-y-3 text-sm text-slate-300">
+            <ul class="list-disc list-inside space-y-2 text-slate-300">
+              <li>Transformación de series de tiempo a Aprendizaje Supervisado (Lags, Rolling Means, Variables Calendario, Promociones).</li>
+              <li><strong>Modelos de Machine Learning para Demanda:</strong>
+                <ul class="list-circle list-inside ml-4 mt-1 space-y-1 text-slate-300 text-xs">
+                  <li><strong>Regresión Lineal:</strong> Baseline supervisado y coeficientes explicativos.</li>
+                  <li><strong>Árbol de Decisión:</strong> Reglas explícitas e interpretabilidad.</li>
+                  <li><strong>Random Forest:</strong> Ensamble Bagging para mitigar sobreajuste.</li>
+                  <li><strong>XGBoost & CatBoost:</strong> Boosting de alto rendimiento para multiserie masiva con variables categóricas.</li>
+                </ul>
+              </li>
+              <li>Integración de alto rendimiento con <strong>Python y Polars</strong> para procesamiento acelerado.</li>
+              <li>Diagnóstico de residuales, validación temporal cruzada (Backtesting) y control de sobreajuste.</li>
+            </ul>
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-xs text-indigo-400">
+              from sklearn.linear_model import LinearRegression<br>
+              from sklearn.ensemble import RandomForestRegressor<br>
+              import xgboost as xgb<br>
+              import catboost as cb
+            </div>
+          </div>
+        </div>
+
+        <!-- MÓDULO 4 -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl overflow-hidden">
+          <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-slate-800/90 transition" onclick="toggleModule('mod4')">
+            <div class="flex items-center space-x-4">
+              <span class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 font-extrabold flex items-center justify-center shrink-0">04</span>
+              <div>
+                <span class="text-xs text-purple-400 font-mono">Semana 4 • 6 Horas</span>
+                <h3 class="text-lg font-bold text-white">Aplicaciones en Supply Chain & Toma de Decisiones</h3>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1 rounded-full border border-slate-700">Semana 4</span>
+              <i data-lucide="chevron-down" id="mod4-icon" class="w-5 h-5 text-slate-400 transition-transform"></i>
+            </div>
+          </div>
+          <div id="mod4-content" class="px-5 pb-5 border-t border-slate-700/60 pt-4 hidden space-y-3 text-sm text-slate-300">
+            <ul class="list-disc list-inside space-y-2 text-slate-300">
+              <li>Forecasting integrado de demanda y requisitos de abastecimiento (Requisition Planning).</li>
+              <li>Optimización de inventarios y cálculo dinámico de Stock de Seguridad (Safety Stock) según la variabilidad del pronóstico.</li>
+              <li>Simulación de escenarios (What-If Analysis) para promociones, quiebres de stock y disrupciones.</li>
+              <li>Construcción de dashboards de resultados y Storytelling analítico para la gerencia de operaciones.</li>
+            </ul>
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-xs text-purple-400">
+              # Safety Stock = Z * sqrt(LeadTime * Var_Demanda + Demanda^2 * Var_LeadTime)
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 5: CRONOGRAMA -->
+    <section id="tab-cronograma" class="tab-content hidden transition-opacity duration-300 space-y-8">
+      <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-6">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="p-2 bg-brand-500/10 text-brand-400 rounded-lg">
+            <i data-lucide="clock" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-white">Cronograma Oficial (1 Mes / 4 Semanas)</h2>
+            <p class="text-xs text-slate-400">Diseñado para la disponibilidad de profesionales activos en LatAm</p>
+          </div>
+        </div>
+        
+        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+          Estructurado en <strong class="text-white">4 Semanas</strong>, con una intensidad de <strong class="text-white">3 días a la semana (2 horas por sesión)</strong>, sumando un total de <strong class="text-brand-400">24 Horas Lectivas Directas en Vivo</strong> + talleres y prácticas en Python.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 font-mono text-xs text-slate-300 pt-2">
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center space-x-3">
+            <i data-lucide="calendar-days" class="w-5 h-5 text-brand-400"></i>
+            <div>
+              <span class="block text-white font-bold">Opción A (L-M-V)</span>
+              <span>Lunes, Miércoles, Viernes</span>
+            </div>
+          </div>
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center space-x-3">
+            <i data-lucide="calendar-days" class="w-5 h-5 text-tech-400"></i>
+            <div>
+              <span class="block text-white font-bold">Opción B (M-J-S)</span>
+              <span>Martes, Jueves, Sábados</span>
+            </div>
+          </div>
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex items-center space-x-3">
+            <i data-lucide="clock" class="w-5 h-5 text-amber-400"></i>
+            <div>
+              <span class="block text-white font-bold">Horario Tarde/Noche</span>
+              <span>18:30 a 20:30 (Hora GMT-5 / GMT-6)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline Schedule View -->
+      <div class="space-y-4">
+        <h3 class="text-xl font-bold text-white">Resumen Semanal de Aprendizaje</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Week 1 -->
+          <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+            <div class="flex justify-between items-center mb-3">
+              <span class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 text-xs font-bold">SEMANA 1</span>
+              <span class="text-xs text-slate-400">6 Horas Lectivas</span>
+            </div>
+            <h4 class="font-bold text-white text-base mb-2">Fundamentos, Data Wrangling & ABC/XYZ</h4>
+            <ul class="text-xs space-y-2 text-slate-300">
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span>Rol estratégico del forecasting en demanda y S&OP</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span>Data Wrangling con Pandas & Visualización con Matplotlib/Seaborn</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span><strong>Segmentación ABC/XYZ de productos e inventarios</strong></span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span>Métricas de error: MAPE, WAPE, RMSE, BIAS</span></li>
+            </ul>
+          </div>
+
+          <!-- Week 2 -->
+          <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+            <div class="flex justify-between items-center mb-3">
+              <span class="px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 text-xs font-bold">SEMANA 2</span>
+              <span class="text-xs text-slate-400">6 Horas Lectivas</span>
+            </div>
+            <h4 class="font-bold text-white text-base mb-2">Modelos Clásicos y Series Temporales</h4>
+            <ul class="text-xs space-y-2 text-slate-300">
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span>Suavizamiento Exponencial: Modelo Holt y Holt-Winters</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span>Modelos Estadísticos: SARIMA & SARIMAX con covariables</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span>Componentes de tendencia y estacionalidad con Prophet</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span><span>Selección automática del modelo óptimo por SKU</span></li>
+            </ul>
+          </div>
+
+          <!-- Week 3 -->
+          <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+            <div class="flex justify-between items-center mb-3">
+              <span class="px-3 py-1 rounded-full bg-tech-500/20 text-tech-400 text-xs font-bold">SEMANA 3</span>
+              <span class="text-xs text-slate-400">6 Horas Lectivas</span>
+            </div>
+            <h4 class="font-bold text-white text-base mb-2">Forecasting Avanzado con Machine Learning</h4>
+            <ul class="text-xs space-y-2 text-slate-300">
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-tech-400"></span><span>Feature Engineering (Lags, Rolling stats, Calendario)</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-tech-400"></span><span>Regresión Lineal & Árboles de Decisión</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-tech-400"></span><span>Modelos de Ensamble: Random Forest, XGBoost y CatBoost</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-tech-400"></span><span>Aceleración con Polars & Backtesting cruzado</span></li>
+            </ul>
+          </div>
+
+          <!-- Week 4 -->
+          <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5">
+            <div class="flex justify-between items-center mb-3">
+              <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold">SEMANA 4</span>
+              <span class="text-xs text-slate-400">6 Horas Lectivas</span>
+            </div>
+            <h4 class="font-bold text-white text-base mb-2">Aplicaciones en Supply Chain</h4>
+            <ul class="text-xs space-y-2 text-slate-300">
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span><span>Planificación de Demanda y Reabastecimiento</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span><span>Cálculo dinámico de Stock de Seguridad (Safety Stock)</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span><span>Simulación de escenarios de mercado (What-If)</span></li>
+              <li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span><span>Dashboard de resultados y Storytelling analítico</span></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: CERTIFICADO -->
+    <section id="tab-certificado" class="tab-content hidden transition-opacity duration-300 space-y-8">
+      <div class="text-center max-w-3xl mx-auto space-y-3">
+        <span class="text-xs font-bold text-brand-400 uppercase tracking-widest">Acreditación Oficial</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Ejemplo de Certificado Digital</h2>
+        <p class="text-slate-300 text-sm">
+          Al completar satisfactoriamente las 24 horas lectivas y los proyectos prácticos, cada participante recibirá un certificado verificado digitalmente con código QR de validación.
+        </p>
+      </div>
+
+      <!-- Digital Certificate Canvas / Mockup -->
+      <div class="max-w-4xl mx-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-4 border-amber-500/60 rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden text-center">
+        <!-- Certificate Ornamental Corners -->
+        <div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-amber-400"></div>
+        <div class="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-amber-400"></div>
+        <div class="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-amber-400"></div>
+        <div class="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-amber-400"></div>
+
+        <!-- Watermark / Background badge -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+          <div class="w-96 h-96 rounded-full border-8 border-white flex items-center justify-center text-9xl font-extrabold">SC</div>
+        </div>
+
+        <div class="relative z-10 space-y-6">
+          <div class="flex justify-center items-center space-x-2">
+            <i data-lucide="award" class="w-10 h-10 text-amber-400"></i>
+            <span class="text-xs font-mono uppercase tracking-widest text-amber-400 font-bold">Certificado de Aprobación & Excelencia</span>
+          </div>
+
+          <h3 class="text-2xl sm:text-3xl font-serif text-slate-100 font-bold">Se otorga el presente diploma a:</h3>
+
+          <!-- Student Name Highlight -->
+          <div class="py-2 border-b-2 border-brand-500 max-w-xl mx-auto">
+            <span class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-emerald-300 to-amber-300">
+              Naren Castellón
+            </span>
+          </div>
+
+          <p class="text-slate-300 text-sm max-w-2xl mx-auto leading-relaxed">
+            Por haber culminado con éxito el programa ejecutivo especializado de <strong class="text-white">24 horas lectivas en vivo</strong> sobre:
+          </p>
+
+          <h4 class="text-xl sm:text-2xl font-bold text-white tracking-wide">
+            "Forecasting para Supply Chain con Python: Modelos Clásicos y Machine Learning"
+          </h4>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-400 pt-6 max-w-2xl mx-auto border-t border-slate-700/60">
+            <div>
+              <span class="block font-bold text-slate-200">Duración</span>
+              <span>24 Horas Directas</span>
+            </div>
+            <div>
+              <span class="block font-bold text-slate-200">Nivel</span>
+              <span>Intermedio - Avanzado</span>
+            </div>
+            <div>
+              <span class="block font-bold text-slate-200">Código de Verificación</span>
+              <span class="font-mono text-emerald-400">SC-2026-NC-9821</span>
+            </div>
+          </div>
+
+          <!-- Signatures -->
+          <div class="flex flex-col sm:flex-row items-center justify-around pt-8 gap-6">
+            <div class="text-center">
+              <div class="w-40 border-b border-slate-500 mx-auto mb-1 font-serif text-brand-400 text-sm italic">Naren Castellón</div>
+              <span class="text-[11px] block font-bold text-slate-300">Naren Castellón</span>
+              <span class="text-[10px] text-slate-500 block">Instructor del Curso & Especialista</span>
+            </div>
+
+            <!-- Gold Seal -->
+            <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-600 via-amber-400 to-yellow-200 text-slate-950 flex flex-col items-center justify-center font-bold shadow-lg shadow-amber-500/30 shrink-0">
+              <i data-lucide="check-circle" class="w-6 h-6 mb-0.5"></i>
+              <span class="text-[8px] uppercase tracking-tighter">VERIFICADO</span>
+            </div>
+
+            <div class="text-center">
+              <div class="w-40 border-b border-slate-500 mx-auto mb-1 font-serif text-indigo-300 text-sm italic">Supply Chain Analytics</div>
+              <span class="text-[11px] block font-bold text-slate-300">Programa de Capacitación</span>
+              <span class="text-[10px] text-slate-500 block">América Latina</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center pt-2">
+        <button onclick="alert('Este es un ejemplo interactivo de la plantilla de certificado que se emitirá a los graduados.')" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold text-xs transition inline-flex items-center space-x-2">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Descargar Ejemplo en PDF</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 7: PRECIOS & INSCRIPCION -->
+    <section id="tab-precios" class="tab-content hidden transition-opacity duration-300 space-y-8">
+      <div class="text-center max-w-3xl mx-auto space-y-3">
+        <span class="text-xs font-bold text-brand-400 uppercase tracking-widest">Inversión y Estrategia LatAm</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Sugerencia de Costos de Inscripción</h2>
+        <p class="text-slate-300 text-sm">
+          Precios estructurados según el Poder Adquisitivo de América Latina (PPP) para maximizar la conversión en México, Colombia, Perú, Chile, Argentina y Centroamérica.
+        </p>
+      </div>
+
+      <!-- Pricing Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+        
+        <!-- Early Bird -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute top-0 right-0 bg-brand-500 text-slate-950 font-bold text-[10px] uppercase px-3 py-1 rounded-bl-lg">
+            Más Popular
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white">Preventa (Early Bird)</h3>
+            <p class="text-xs text-slate-400 mt-1">Inscripciones anticipadas (primeros 15 cupos)</p>
+            <div class="my-6">
+              <span class="text-4xl font-extrabold text-brand-400">$180</span>
+              <span class="text-slate-400 text-sm"> USD</span>
+            </div>
+            <ul class="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-4">
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-brand-400"></i>
+                <span>Acceso a las 24 hrs en vivo</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-brand-400"></i>
+                <span>Grabaciones de por vida</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-brand-400"></i>
+                <span>Repositorio GitHub de códigos</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-brand-400"></i>
+                <span>Certificado digital de finalización</span>
+              </li>
+            </ul>
+          </div>
+          <button onclick="selectPlan('Preventa', 180)" class="mt-6 w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-xs transition shadow-md">
+            Seleccionar Preventa
+          </button>
+        </div>
+
+        <!-- Regular -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-white">Precio Regular</h3>
+            <p class="text-xs text-slate-400 mt-1">Tarifa estándar post-preventa</p>
+            <div class="my-6">
+              <span class="text-4xl font-extrabold text-white">$250</span>
+              <span class="text-slate-400 text-sm"> USD</span>
+            </div>
+            <ul class="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-4">
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-slate-400"></i>
+                <span>Acceso a las 24 hrs en vivo</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-slate-400"></i>
+                <span>Grabaciones de por vida</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-slate-400"></i>
+                <span>Repositorio GitHub de códigos</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-slate-400"></i>
+                <span>Certificado digital de finalización</span>
+              </li>
+            </ul>
+          </div>
+          <button onclick="selectPlan('Regular', 250)" class="mt-6 w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs transition">
+            Seleccionar Regular
+          </button>
+        </div>
+
+        <!-- Corporate -->
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-white">Grupal / Corporativo</h3>
+            <p class="text-xs text-slate-400 mt-1">A partir de 3 participantes por empresa</p>
+            <div class="my-6">
+              <span class="text-4xl font-extrabold text-tech-400">$160</span>
+              <span class="text-slate-400 text-sm"> USD / pers.</span>
+            </div>
+            <ul class="space-y-3 text-xs text-slate-300 border-t border-slate-700/60 pt-4">
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-tech-400"></i>
+                <span>Todo lo del plan regular</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-tech-400"></i>
+                <span>Factura fiscal de la empresa</span>
+              </li>
+              <li class="flex items-center space-x-2">
+                <i data-lucide="check-circle" class="w-4 h-4 text-tech-400"></i>
+                <span>Sesión de Q&A privada (1h adicional)</span>
+              </li>
+            </ul>
+          </div>
+          <button onclick="selectPlan('Corporativo', 160)" class="mt-6 w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs transition">
+            Cotizar Grupal
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Interactive Currency Converter for LatAm -->
+      <div class="bg-slate-800/40 border border-slate-700 rounded-2xl p-6 max-w-2xl mx-auto">
+        <h4 class="font-bold text-white text-sm mb-3 text-center flex items-center justify-center space-x-2">
+          <i data-lucide="calculator" class="w-4 h-4 text-brand-400"></i>
+          <span>Calculadora Estimada para Moneda Local</span>
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Selecciona País / Moneda:</label>
+            <select id="currency-select" onchange="convertCurrency()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+              <option value="USD">Global - USD ($)</option>
+              <option value="MXN">México - MXN ($)</option>
+              <option value="COP">Colombia - COP ($)</option>
+              <option value="PEN">Perú - PEN (S/)</option>
+              <option value="CLP">Chile - CLP ($)</option>
+              <option value="GTQ">Guatemala - GTQ (Q)</option>
+            </select>
+          </div>
+          <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-center">
+            <span class="text-xs text-slate-400 block">Monto en Moneda Local (Preventa):</span>
+            <span id="converted-price" class="text-xl font-mono font-bold text-brand-400">$180.00 USD</span>
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-500 text-center mt-3">* Tipo de cambio referencial para cobros en Hotmart, Stripe, PayPal o Pasarela elegida.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Enrollment Modal with Payment Link Configurator -->
+  <div id="modal-enroll" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <h3 class="text-xl font-bold text-white mb-1">Inscripción / Enlace de Pago</h3>
+      <p id="modal-plan-title" class="text-xs text-brand-400 font-medium mb-4">Plan Seleccionado: Preventa ($180 USD)</p>
+
+      <!-- Editable Payment URL Box -->
+      <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 mb-4 text-xs">
+        <label class="block text-slate-300 font-semibold mb-1">Enlace de Pago Configurado:</label>
+        <div class="flex items-center space-x-2">
+          <input type="url" id="payment-url-input" value="https://wa.me/50762801526?text=Hola%20Naren,%20quiero%20inscribirme%20al%20curso%20de%20Forecasting" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-brand-400 font-mono focus:outline-none">
+          <button onclick="updatePaymentUrl()" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-bold shrink-0">Guardar</button>
+        </div>
+        <span class="text-[10px] text-slate-400 mt-1 block">* Puedes cambiar este enlace por tu pasarela de Stripe, Hotmart o WhatsApp.</span>
+      </div>
+
+      <form onsubmit="handleFormSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Nombre Completo</label>
+          <input type="text" required placeholder="Ej. Carlos Mendoza" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Correo Electrónico</label>
+          <input type="email" required placeholder="carlos@empresa.com" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">País & Empresa</label>
+          <input type="text" required placeholder="Ej. México - Grupo Bimbo" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-brand-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <button type="submit" class="py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition border border-slate-700">
+            Enviar Solicitud
+          </button>
+          <button type="button" onclick="goToDirectPayment()" class="py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-xs transition flex items-center justify-center space-x-1 shadow-lg shadow-brand-500/20">
+            <span>Pagar Ahora</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-emerald-500 text-slate-950 px-4 py-3 rounded-xl shadow-2xl font-semibold text-xs flex items-center space-x-2 hidden z-50">
+    <i data-lucide="check-circle" class="w-4 h-4"></i>
+    <span id="toast-message">¡Solicitud recibida! Te contactaremos pronto.</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 border-t border-slate-800 py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div>
+        <span>Supply Chain Forecasting en Python • Instructor: <strong>Naren Castellón</strong></span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span>WhatsApp: <strong class="text-slate-300">+507 62801526</strong></span>
+        <span>•</span>
+        <span>Email: <strong class="text-slate-300">jansnica@gmail.com</strong></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Global Configurable Payment URL
+    let PAYMENT_URL = "https://wa.me/50762801526?text=Hola%20Naren,%20quiero%20inscribirme%20al%20curso%20de%20Forecasting%20para%20Supply%20Chain";
+
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    function updatePaymentUrl() {
+      const input = document.getElementById('payment-url-input');
+      if (input && input.value.trim() !== '') {
+        PAYMENT_URL = input.value.trim();
+        showToast("¡Enlace de pago actualizado con éxito!");
+      }
+    }
+
+    function redirectToPayment(e) {
+      if(e) e.preventDefault();
+      window.open(PAYMENT_URL, '_blank');
+    }
+
+    function goToDirectPayment() {
+      window.open(PAYMENT_URL, '_blank');
+    }
+
+    // Tab Switching Logic
+    function switchTab(tabId) {
+      // Hide all contents
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.add('hidden'));
+
+      // Remove active styles from nav buttons
+      const navBtns = document.querySelectorAll('.tab-btn');
+      navBtns.forEach(btn => {
+        btn.classList.remove('bg-brand-500', 'text-slate-950', 'active-tab');
+        btn.classList.add('text-slate-400');
+      });
+
+      // Show target tab content
+      const targetContent = document.getElementById(`tab-${tabId}`);
+      if (targetContent) {
+        targetContent.classList.remove('hidden');
+      }
+
+      // Highlight target nav button
+      const targetBtn = document.getElementById(`nav-${tabId}`);
+      if (targetBtn) {
+        targetBtn.classList.add('bg-brand-500', 'text-slate-950', 'active-tab');
+        targetBtn.classList.remove('text-slate-400');
+      }
+
+      // Close mobile menu if open
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.add('hidden');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Toggle Mobile Menu
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    // Toggle Module Accordion
+    function toggleModule(modId) {
+      const content = document.getElementById(`${modId}-content`);
+      const icon = document.getElementById(`${modId}-icon`);
+      if (content) {
+        content.classList.toggle('hidden');
+        if (icon) {
+          icon.classList.toggle('rotate-180');
+        }
+      }
+    }
+
+    // Currency Conversion
+    const exchangeRates = {
+      USD: { rate: 1, symbol: '$', code: 'USD' },
+      MXN: { rate: 17.2, symbol: '$', code: 'MXN' },
+      COP: { rate: 3950, symbol: '$', code: 'COP' },
+      PEN: { rate: 3.75, symbol: 'S/', code: 'PEN' },
+      CLP: { rate: 920, symbol: '$', code: 'CLP' },
+      GTQ: { rate: 7.8, symbol: 'Q', code: 'GTQ' },
+    };
+
+    function convertCurrency() {
+      const select = document.getElementById('currency-select');
+      const targetCurrency = select.value;
+      const baseUSD = selectedPlanPrice || 180;
+      
+      const curr = exchangeRates[targetCurrency] || exchangeRates.USD;
+      const converted = (baseUSD * curr.rate).toLocaleString('es-MX', {
+        maximumFractionDigits: curr.rate > 100 ? 0 : 2
+      });
+
+      document.getElementById('converted-price').innerText = `${curr.symbol} ${converted} ${curr.code}`;
+    }
+
+    // Modal Control
+    let selectedPlanName = 'Preventa';
+    let selectedPlanPrice = 180;
+
+    function selectPlan(plan, price) {
+      selectedPlanName = plan;
+      selectedPlanPrice = price;
+      document.getElementById('modal-plan-title').innerText = `Plan Seleccionado: ${plan} ($${price} USD)`;
+      convertCurrency();
+      document.getElementById('modal-enroll').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-enroll').classList.add('hidden');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      if (toastMsg) toastMsg.innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4000);
+    }
+
+    // Handle Form Submit
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      closeModal();
+      showToast("¡Solicitud recibida! Te contactaremos pronto por WhatsApp/Email.");
+    }
+  </script>
+</body>
+</html>
